@@ -7,11 +7,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $username = mysqli_real_escape_string($conn, $username);
     $password = mysqli_real_escape_string($conn, $password);
 
-    $query = "SELECT * FROM acc WHERE username=? AND password=?";
+    $query = "SELECT * FROM acc WHERE username=?";
     $stmt = mysqli_stmt_init($conn);
 
     if (mysqli_stmt_prepare($stmt, $query)) {
-        mysqli_stmt_bind_param($stmt, "ss", $username, $password);
+        mysqli_stmt_bind_param($stmt, "s", $username);
         mysqli_stmt_execute($stmt);
         $result = mysqli_stmt_get_result($stmt);
 
@@ -20,14 +20,23 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
 
         if (mysqli_num_rows($result) == 1) {
-            session_start();
-            $_SESSION['username'] = $username;
-            $_SESSION['password'] = $password;
-            $_SESSION['prosses'] = "Login";
-            $error_message = "Loged In Success";
+            $row = mysqli_fetch_assoc($result);
+            if (password_verify($password, $row['password'])) {
+                // Password is correct
+                session_start();
+                $_SESSION['username'] = $username;
+                $_SESSION['prosses'] = "Login";
+                $error_message = "Logged In Successfully";
+                mysqli_stmt_close($stmt);
+                mysqli_close($conn);
+                header("Location: ../dashboard/index.php");
+                exit;
+            } else {
+                $error_message = "Invalid password. Please try again.";
+            }
         } else {
-            // User not found or incorrect credentials
-            $error_message = "Invalid username or password. Please try again.";
+            // User not found
+            $error_message = "Invalid username. Please register first.";
         }
     } else {
         die('Statement preparation failed: ' . mysqli_error($conn));
@@ -47,15 +56,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <script>
     <?php if (!empty($error_message)) : ?>
         alert("<?php echo $error_message; ?>");
-        <?php if($error_message == "Loged In Success"){ ?>
+        <?php if($error_message == "Logged In Successfully"){ ?>
             window.location.href = "../dashboard/index.php";
         <?php }else{
         ?>
             window.location.href = "../index.php";
         <?php }
         ?>
-        <?php endif; ?>
-</script>
+    <?php endif; ?>
+    </script>
 </head>
 <body>
 </body>
