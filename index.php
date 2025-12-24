@@ -1,9 +1,22 @@
+<?php
+session_start();
+
+if (isset($_SESSION['username'])) {
+    if ($_SESSION['username'] == "admin") {
+        header("Location: dashboard/admin.php");
+    } else {
+        header("Location: dashboard/users.php");
+    }
+} else {
+    include('conc/conc.php'); 
+?>
+
 <!DOCTYPE html>
 <html>
 <head>
     <title>Test</title>
-    <link rel="stylesheet" type="text/css" href="styles.css">
-    <link rel="icon" href="icon.png" type="image/png">
+    <link rel="stylesheet" type="text/css" href="css/styles.css">
+    <link rel="icon" href="src/icon.png" type="image/png">
 </head>
 <body>
     <div class="flip-container">
@@ -22,8 +35,8 @@
             <div class="back">
                 <h1 class="title">Register</h1>
                 <form action="session/register.php" method="post" name="registerForm">
-                    <input type="text" placeholder="Name" name="name" required />
                     <input type="text" placeholder="Username" name="username" required />
+                    <input type="text" placeholder="Name" name="name" required />
                     <input type="text" placeholder="Phone Number" name="phone" required />
                     <input type="email" placeholder="Email" name="email" required />
                     <input type="password" placeholder="Password" name="password" id="password" required />
@@ -34,6 +47,9 @@
             </div>
         </div>
     </div>
-    <script src="javascript.js"></script>
+    <?php include('copyright.php'); ?>
+    <script src="js/javascript.js"></script>
 </body>
 </html>
+
+<?php } ?>
